@@ -8,6 +8,28 @@ d3.json(queryUrl, function(data) {
 });
 
 
+function getColor(magnitude) {
+  if (magnitude >= 0 & magnitude <1.00){
+      return color ="#9ACD32";
+    }
+  else if (magnitude >= 1.00 & magnitude <2.00){
+      return color = "#FFFF00";
+  }
+  else if (magnitude >= 2.00 & magnitude <3.00){
+      return color = "#FFD700";
+  }
+  else if (magnitude >= 3.00 & magnitude <4.00){
+      return color = "#FFA500";
+  }
+  else if (magnitude >= 4.00 & magnitude <5.00){
+      return color = "#FF8C00";
+  }
+  else {
+      return color = "#FF4500";
+  }
+}
+
+
 
 function createFeatures(earthquakeData) {
 
@@ -22,11 +44,13 @@ function createFeatures(earthquakeData) {
     return magnitude*5;
   }
 
+  
+
   // Create a GeoJSON layer containing the features array on the earthquakeData object
   // Run the onEachFeature function once for each piece of data in the array
   var earthquakes = L.geoJSON(earthquakeData, {
       pointToLayer: function(feature, latlng) {
-      return new L.CircleMarker(latlng, {radius: markerSize(feature.properties.mag), fillOpacity: 0.65, color: "yellow"});
+      return new L.CircleMarker(latlng, {radius: markerSize(feature.properties.mag), fillOpacity: 0.55, color: getColor(feature.properties.mag)});
 },
 // getColor(feature.properties.Proyecto)
 
@@ -40,7 +64,7 @@ function createFeatures(earthquakeData) {
 function createMap(earthquakes) {
 
   // Define streetmap and darkmap layers
-  var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+  var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
     maxZoom: 18,
     id: "mapbox.streets",
@@ -56,7 +80,7 @@ function createMap(earthquakes) {
 
   // Define a baseMaps object to hold our base layers
   var baseMaps = {
-    "Street Map": streetmap,
+    "Light Map": lightmap,
     "Dark Map": darkmap
   };
 
@@ -71,8 +95,31 @@ function createMap(earthquakes) {
         39.76453, -105.1353092
     ],
     zoom: 5,
-    layers: [streetmap, earthquakes]
+    layers: [lightmap, earthquakes]
   });
+
+
+  var legend = L.control ({
+    position: 'bottomright'});
+
+  legend.onAdd= function() {
+    var div = L.DomUtil.create("div", "info legend"),
+    grades = ['0', '1', '2', '3', '4', '5']
+    labels = []
+
+    for (var i = 0; i < grades.length; i++) {
+      div.innerHTML +=
+          '<i style="background:' + getColor(grades[i]) + '"></i> ' +
+          grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+  }
+
+    return div;
+  };
+  // Add the info legend to the map
+  legend.addTo(myMap);
+
+
+  
 
   // Create a layer control
   // Pass in our baseMaps and overlayMaps
