@@ -1,6 +1,6 @@
 <h1>Visualizing-Data-with-Leaflet</h1> 
 
-<img src="/image/map.png" alt="map">
+<img src="../images/map.jpg" alt="map">
 
 <h3>Import & Visualize the Data</h3>
 
